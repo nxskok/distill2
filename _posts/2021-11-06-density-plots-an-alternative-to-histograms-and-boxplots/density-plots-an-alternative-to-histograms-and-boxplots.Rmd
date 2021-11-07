@@ -1,0 +1,156 @@
+---
+title: "Density plots: an alternative to histograms and boxplots"
+description: |
+  An introduction to density plots assuming that you are familiar with histograms and boxplots
+author:
+  - name: Ken Butler
+    url: https://ritsokiguess.site/distill2
+date: 10-16-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Packages
+
+```{r}
+library(tidyverse)
+```
+
+## Some data
+
+We will need some data to illustrate the plots. I will use some data on physical and physiological measurements on 202 Australian elite athletes:
+
+```{r}
+my_url <- "http://ritsokiguess.site/datafiles/ais.txt"
+athletes <- read_tsv(my_url)
+athletes
+```
+
+
+## The histogram and the boxplot
+
+The histogram goes back to Karl Pearson. It offers a simple way to visualize a single quantitative, continuous distribution. For example, a histogram of the weights of all the athletes:
+
+```{r}
+ggplot(athletes, aes(x = Wt)) + geom_histogram(bins = 8)
+```
+
+A histogram works by dividing the range of the quantitative variable into discrete intervals or "bins", often of the same width. On the above histogram, the tallest bar goes with a bin from about 65 to about 80 (kg). The height of each histogram bar is the number of observations within that bin.
+
+Evidently, the choice of how many bins to use may have an impact on how the histogram looks. If you use more bins:
+
+```{r}
+ggplot(athletes, aes(x = Wt)) + geom_histogram(bins = 20)
+```
+
+you get a more detailed picture of the distribution, at the expense of getting a less smooth picture. In this picture, the distribution appears to have something like three peaks, but you would probably say that these only appeared because we chose so many bins. On the other hand, if you have fewer bins:
+
+```{r}
+ggplot(athletes, aes(x = Wt)) + geom_histogram(bins = 3)
+```
+
+you get a smooth picture all right, but you lose almost all of the detail.
+
+Hadley Wickham, in "R For Data Science", says "You should always explore a variety of binwidths when working with histograms, as different binwidths can reveal different patterns." This may be the reason that there is no default number of bins on `geom_histogram`^[well, there is, but the default is way too many]. The right number of bins for you and your histogram depends on the story you think the data are trying to tell.
+
+A boxplot is another way to make a visual of a quantitative variable. The boxplot was popularized by John Tukey, but is really a descendant of the "range bar" of Mary Eleanor Spear.
+Here's how it looks for the weights:
+
+```{r}
+ggplot(athletes, aes(x = 1, y = Wt)) + geom_boxplot()
+```
+
+A boxplot is characterized by a box, two whiskers and some observations plotted individually. The line across the middle of the box is at the median; the bottom and top of the box are the first and third quartiles, so that the height of the box is the interquartile range; the whiskers join the box to the outermost "non-extreme" observations, and any "extreme" observations are plotted individually.^[The usual criterion for "extreme" is more than 1.5 times the inter-quartile range beyond the quartiles.]
+
+Where a boxplot really shines is in comparing several groups, for example, comparing the weights of athletes who play different sports:
+
+```{r}
+ggplot(athletes, aes(x = Sport, y = Wt)) + geom_boxplot()
+```
+
+The gymnasts (`Gym`) are the least heavy on average, and also have a very small spread.^[In this dataset, the gymnasts are all female.] The field athletes (`Field`) and the water polo players (`WPolo`) are the heaviest on average. There are some outliers (the heavy track sprinter (`TSprnt`) and the light netball player), and the rowers' (`Row`) distribution has a long lower tail.^[the low extreme point may be an outlier or part of the long tail.]
+
+
+The value of the histogram and the boxplot is that they are easy to draw by hand. For example, you could first draw a stem-and-leaf plot of the data, and use the information there to count the number of observations in bins, or to work out the quartiles and find the extreme observations.^[Many of Tukey's other innovations were designed to be quick and simple, readily usable on a 1960s factory floor.] This is good if you were learning or using statistical methods in the days before computers, or you are pretending you are.^[Not mentioning stats classes in Psychology at all, oh dear me no.]  But with access to R, there is no need to restrict ourselves to graphs that are easy to draw.
+
+## Density estimation
+
+The histogram is a rather crude example of a "density estimator": the number of observations per unit interval of (in our case) kilogram of weight. A basic way of estimating density at a certain weight, say 80 kg, is to take the number of observations in the histogram bin that includes 80, and then to divide it by the width of the bin. 
+
+A limitation of the above method is that the estimate is the same all the way across the bin, giving a discontinuous estimate of density when the underlying density curve ought (you would expect) to be smooth.
+
+Something that will give a smooth answer is *kernel density estimation*. For any given (athlete's) weight $x$, we choose a distribution centred at $x$ (say normal) and choose a standard deviation for that distribution (there are rules of thumb for doing this). This is called a kernel.  To estimate the density at $x$, work out a weighted count of how many observations there are close to $x$, where the weights are the kernel distribution's density function evaluated at each observation. The idea is that observations closer to $x$ should contribute more to the weighted count.
+
+This is not something you would want to calculate by hand, but we are no longer in the 1960s, so we no longer need to do that. Here is the kernel-density-estimated smoothed histogram for the athletes' weights:
+
+
+```{r}
+ggplot(athletes, aes(x = Wt)) + geom_density()
+```
+
+A nice smooth version of the histogram. By default, this uses a normal kernel distribution with a standard deviation chosen by a rule of thumb. The smoothness can be adjusted by using a value of `adjust` different from 1:
+
+```{r}
+ggplot(athletes, aes(x = Wt)) + geom_density(adjust = 3)
+```
+
+A value bigger than 1 estimates from a wider range of data, so the resulting density plot looks smoother.
+
+```{r}
+ggplot(athletes, aes(x = Wt)) + geom_density(adjust = 0.3)
+```
+
+A value of `adjust` less than 1 reacts more sharply to local features of the data, producing a less smooth graph. 
+
+Another feature of density plots is that you can "stack" several behind each other, to compare distributions. Let's compare the weights of the male and female^[For this dataset, that means eligible to compete in athletic events for men and women.] athletes. To do that, use a `fill` on the `aes` and specify the categorical variable there:
+
+```{r}
+ggplot(athletes, aes(x = Wt, fill = Sex)) + geom_density()
+```
+
+This is not quite as we want: the upper tail of the weight distribution for the female athletes has disappeared behind the male ones, so we don't know how high the female athletes' weights go. To make it so that we can see both, we need to make the density curves partly transparent. In `ggplot`, you can make anything transparent by using a parameter `alpha`; a value of 1 means completely opaque (ie. like this), and a value of 0 means completely transparent (ie. invisible). So we can try this:
+
+```{r}
+ggplot(athletes, aes(x = Wt, fill = Sex)) + geom_density(alpha = 0.5)
+```
+
+This makes it clearer that both distributions of weights have an upper tail, and that the female athletes' weights to up to about 100 kg, heavier than the average of the male athlete weights. The athletes that are lighter in weight are all females, however.
+
+I'd have to say, though, that comparing distributions using density plots is easier with a relatively small number of distributions. Comparing all ten sports might be too much:
+
+```{r}
+ggplot(athletes, aes(x = Wt, fill = Sport)) + geom_density(alpha = 0.5)
+```
+
+It's more than a little difficult to distinguish all those colours, never mind to see where their density estimates are. When using `fill`, which colours the *inside* of something in ggplot, the colours of overlapping things also get mixed. An alternative is to use `colour` rather than `fill`, which colours the *outside*:
+
+
+```{r}
+ggplot(athletes, aes(x = Wt, colour = Sport)) + geom_density(alpha = 0.5)
+```
+
+This time, it's a little easier to see where each density goes, but it is still equally difficult to distinguish the ten colours from each other. For this many distributions, the boxplot is still a good way to compare them.
+
+If we just look at, say, four of the sports, the density plot is more useful:
+
+```{r}
+the_sports <- c("Gym", "Netball", "BBall", "Field")
+athletes %>% 
+  filter(Sport %in% the_sports) %>% 
+  ggplot(aes(x = Wt, fill = Sport)) + geom_density(alpha = 0.5)
+```
+
+This shows that the gymnasts are the lightest weight, the netball players have a compact distribution of weights centred around 65 kg, and the basketball players and field athletes have a much greater spread of weights, with the field athletes being heavier overall.^[It's a little difficult to see the distribution of weights of basketball players other than by elimination, because the density estimate for basketball players is hidden behind the others except around weight 80 kg.]
+
+## Final thoughts
+
+For a less statistically-educated audience, the density plot has less "baggage" than other plots like the boxplot; it is rather clearer where most of the values are, whether there is a greater or lesser spread, and what the shape looks like. It is also straightforward to see how distributions compare by making a density plot like the one above with the density estimates one behind the other. For a statistical audience, it is clear by looking at a boxplot how distributions compare, but boxplots have more baggage in that for a general audience, there needs to be discussion of median, quartiles and outliers in order to make sense of the plot. I was motivated to write this post because I did a "webinar" for my Toastmasters club using the Palmer Penguins data, and in preparing that, I found that density plots gave a clear picture of how the three  species of penguin compared on the physical measurements in that dataset.
+
+
+
