@@ -1,0 +1,24 @@
+---
+title: "hello"
+description: |
+  Getting this working
+author:
+  - name: Ken Butler
+    url: https://ritsokiguess.site/docs
+date: 11-06-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+This is a remarkably short article.
+
+```{r}
+rpois(10, 2)
+```
+

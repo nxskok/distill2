@@ -1,0 +1,36 @@
+[
+  {
+    "path": "posts/2021-11-06-hello/",
+    "title": "hello",
+    "description": "Getting this working",
+    "author": [
+      {
+        "name": "Ken Butler",
+        "url": "https://ritsokiguess.site/docs"
+      }
+    ],
+    "date": "2021-11-06",
+    "categories": [],
+    "contents": "\nThis is a remarkably short article.\n\n [1] 3 3 1 7 1 2 1 2 1 6\n\n\n\n\n",
+    "preview": {},
+    "last_modified": "2021-11-06T22:22:38-04:00",
+    "input_file": {}
+  },
+  {
+    "path": "posts/welcome/",
+    "title": "Welcome to My Blog",
+    "description": "Welcome to our new blog, My Blog. We hope you enjoy \nreading what we have to say!",
+    "author": [
+      {
+        "name": "Nora Jones",
+        "url": "https://example.com/norajones"
+      }
+    ],
+    "date": "2021-11-06",
+    "categories": [],
+    "contents": "\n\n\n\n",
+    "preview": {},
+    "last_modified": "2021-11-06T22:17:44-04:00",
+    "input_file": {}
+  }
+]
