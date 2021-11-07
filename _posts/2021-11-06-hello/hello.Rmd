@@ -16,7 +16,9 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-This is a remarkably short article.
+This is a remarkably^[Worthy of remark.] short article.
+
+Here are some random Poisson numbers.
 
 ```{r}
 rpois(10, 2)
