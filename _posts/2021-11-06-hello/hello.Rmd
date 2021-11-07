@@ -16,7 +16,7 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-This is a remarkably^[Worthy of remark.] short article.
+This is a remarkably^[Worthy of remark.] short article. It is Saturday night, and I am barely awake, yet this seems to be simple enough to make work. 
 
 Here are some random Poisson numbers.
 

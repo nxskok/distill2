@@ -11,9 +11,9 @@
     ],
     "date": "2021-11-06",
     "categories": [],
-    "contents": "\nThis is a remarkably1 short article.\nHere are some random Poisson numbers.\n\n [1] 1 2 2 3 3 4 0 2 0 1\n\n\nWorthy of remark.↩︎\n",
+    "contents": "\nThis is a remarkably1 short article. It is Saturday night, and I am barely awake, yet this seems to be simple enough to make work.\nHere are some random Poisson numbers.\n\n [1] 1 2 6 1 3 4 0 3 0 0\n\n\nWorthy of remark.↩︎\n",
     "preview": {},
-    "last_modified": "2021-11-06T22:28:44-04:00",
-    "input_file": {}
+    "last_modified": "2021-11-06T22:32:39-04:00",
+    "input_file": "hello.knit.md"
   }
 ]
